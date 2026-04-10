@@ -13,6 +13,7 @@ def register(user: CreateUser   , db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     new_user = User(
+        name =user.name,
         email=user.email,
         password=hash_password(user.password)
     )
