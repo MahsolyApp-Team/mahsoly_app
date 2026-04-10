@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-DATABASE_URL = "sqlite:///./mahsoly_app.db"
+DATABASE_URL = "postgresql://postgres.jaigbdbeqhtvfjpanzfw:25412112003#Is@aws-0-eu-west-1.pooler.supabase.com:6543/postgres"
 engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL
 )
 SessionLocal = sessionmaker(
     autocommit=False,
