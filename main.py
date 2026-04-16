@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from database import Base, engine
 from Authentication import router as auth_router
+from scan import router as csan_router
 from verify import get_current_user
 from models import User
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,8 +17,9 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(csan_router)
 
-@app.get("/me")
+@app.get("/home")
 def get_profile(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
