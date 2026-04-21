@@ -41,7 +41,6 @@ def verify_otp(data: VerifyOTP, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid OTP")
     if not user.otp_expiry or datetime.utcnow() > user.otp_expiry:
         raise HTTPException(status_code=400, detail="OTP expired")
-    
     user.is_verified = True
     user.otp_code = None
     user.otp_expiry = None

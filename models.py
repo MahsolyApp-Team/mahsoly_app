@@ -44,5 +44,4 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 class VerifyOTP(BaseModel):
-    #email: str
     otp: str
