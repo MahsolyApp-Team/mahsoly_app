@@ -25,7 +25,6 @@ async def scan_plant(
             response = await client.post(
                 HF_API_URL,
                 files={"file": (file.filename, contents, file.content_type)},timeout=50.0
-
             )
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="API Model failed")
