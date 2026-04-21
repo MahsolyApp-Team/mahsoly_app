@@ -36,20 +36,15 @@ def register(user_input: CreateUser   , db: Session = Depends(get_db)):
 
 @router.post("/verify-otp")
 def verify_otp(data: VerifyOTP, db: Session = Depends(get_db)):
-
-    user = db.query(User).filter(User.email == data.email).first()
-
+    user = db.query(User).filter(User.otp_code == data.otp).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if user.otp_code != data.otp:
         raise HTTPException(status_code=400, detail="Invalid OTP")
-
-    if datetime.utcnow() > user.otp_expiry:
+    if not user.otp_expiry or datetime.utcnow() > user.otp_expiry:
         raise HTTPException(status_code=400, detail="OTP expired")
-
+    
     user.is_verified = True
     user.otp_code = None
+    user.otp_expiry = None
     db.commit()
     return {"message": "Account verified successfully"}
 
