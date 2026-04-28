@@ -10,7 +10,7 @@ import traceback
 
 router = APIRouter()
 
-HF_API_URL = "https://mahmoudiraqi21-plant-disease-classifier.hf.space/predict" 
+HF_API_URL = "https://mahmoudiraqi21-plant-disease-detection.hf.space/predict" 
 
 @router.post("/scan")
 async def scan_plant(
@@ -24,17 +24,22 @@ async def scan_plant(
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 HF_API_URL,
-                files={"file": (file.filename, contents, file.content_type)},timeout=50.0
+                files={"file": (file.filename, contents, file.content_type)},timeout=100.0
             )
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="API Model failed")
         data = response.json()
+        if "prediction" not in data:
+            return {
+                "message": data.get("message"),
+                "tips": data.get("tips", [])
+    }
         label = data.get("prediction")
         confidence = data.get("confidence")
         plant_name = None
         disease_name = None
-        if label:   
-            parts = label.split("___")
+        if label:
+            parts = label.split(" ", 1)  
             if len(parts) == 2:
                 plant_name = parts[0]
                 disease_name = parts[1]
