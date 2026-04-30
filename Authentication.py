@@ -17,7 +17,14 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 def register(user_input: CreateUser   , db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user_input.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already exists")
+        if db_user.is_verified:
+            raise HTTPException(status_code=400, detail="Email already exists")
+        otp = generate_otp()
+        db_user.otp_code = otp
+        db_user.otp_expiry = datetime.utcnow() + timedelta(minutes=5)
+        db.commit()
+        send_otp_email(db_user.email, otp)
+        return {"message": "OTP resent to your email"}
     otp = generate_otp()
     new_user = User(
         name =user_input.name,
