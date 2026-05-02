@@ -84,7 +84,6 @@ async def predict_crop(
                 json=data.model_dump(),
                 timeout=100.0
             )
-
         if response.status_code != 200:
             print("STATUS:", response.status_code)
             print("BODY:", response.text)
@@ -96,21 +95,16 @@ async def predict_crop(
                     "response": response.text
                 }
             )
-
         result = response.json()
-
         if "recommended_crop" not in result:
             return {
                 "message": result.get("message"),
                 "tips": result.get("tips", [])
             }
-
         crop = result.get("recommended_crop")
-
         return {
             "recommended_crop": crop
         }
-
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal error")
