@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User,CreateUser,LoginRequest,VerifyOTP
+from models import User,CreateUser,LoginRequest,VerifyOTP,ChangePassword,ChangeEmailRequest,change_email_otp
 from security import hash_password, verify_password, create_access_token
 from datetime import datetime, timedelta
 import random
 from email_utils import send_otp_email
+from verify import get_current_user
 
 
 def generate_otp():
@@ -53,6 +54,55 @@ def verify_otp(data: VerifyOTP, db: Session = Depends(get_db)):
     user.otp_expiry = None
     db.commit()
     return {"message": "Account verified successfully"}
+
+@router.post("/change-email")
+def change_email(
+    data: ChangeEmailRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    existing = db.query(User).filter(User.email == data.new_email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already in use")
+    otp = generate_otp()
+    current_user.otp_code = otp
+    current_user.otp_expiry = datetime.utcnow() + timedelta(minutes=5)
+    current_user.new_email = data.new_email
+    db.commit()
+    send_otp_email(data.new_email, otp)
+    return {"message": "OTP sent to new email"}
+
+@router.post("/confirm-email-otp")
+def confirm_email(
+    data: change_email_otp,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.otp_code != data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    if datetime.utcnow() > current_user.otp_expiry:
+        raise HTTPException(status_code=400, detail="OTP expired")
+    current_user.email = current_user.new_email
+    current_user.new_email = None
+    current_user.otp_code = None
+    db.commit()
+    return {"message": "Email updated successfully"}
+
+@router.put("/change-password")
+def change_password(
+    data: ChangePassword,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not verify_password(data.old_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Wrong password")
+    if verify_password(data.new_password, current_user.password):
+        raise HTTPException(status_code=400, detail="New password can not be the same")
+    if data.new_password != data.confirm_new_password:
+        raise HTTPException(status_code=400, detail="passwords does not match")
+    current_user.password = hash_password(data.new_password)
+    db.commit()
+    return {"message": "Password updated successfully"}
 
 @router.post("/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)):

@@ -3,14 +3,15 @@ from sqlalchemy.orm import Session
 import httpx,cloudinary_config
 from datetime import datetime
 from database import get_db
-from models import Scan, Scanimage
+from models import Scan, Scanimage,Cropmodel
 from verify import get_current_user
 from upload import upload_image_to_cloudinary   
 import traceback
 
 router = APIRouter()
 
-HF_API_URL = "https://mahmoudiraqi21-plant-disease-detection.hf.space/predict" 
+REC_API =  "https://mahmoudiraqi21-plant-disease-detection.hf.space/predict" 
+Crop_API = "https://mahmoudiraqi21-crop-recommendation.hf.space/predict"
 
 @router.post("/scan")
 async def scan_plant(
@@ -23,7 +24,7 @@ async def scan_plant(
         image_url = upload_image_to_cloudinary(contents)
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                HF_API_URL,
+                REC_API,
                 files={"file": (file.filename, contents, file.content_type)},timeout=100.0
             )
         if response.status_code != 200:
@@ -69,3 +70,47 @@ async def scan_plant(
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal error") 
+
+@router.post("/predict-crop")
+async def predict_crop(
+    data: Cropmodel,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                Crop_API,
+                json=data.model_dump(),
+                timeout=100.0
+            )
+
+        if response.status_code != 200:
+            print("STATUS:", response.status_code)
+            print("BODY:", response.text)
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "error": "API Model failed",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+            )
+
+        result = response.json()
+
+        if "recommended_crop" not in result:
+            return {
+                "message": result.get("message"),
+                "tips": result.get("tips", [])
+            }
+
+        crop = result.get("recommended_crop")
+
+        return {
+            "recommended_crop": crop
+        }
+
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal error")

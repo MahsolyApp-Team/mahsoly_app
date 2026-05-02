@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from database import Base, engine
 from Authentication import router as auth_router
-from scan import router as csan_router
+from AI_models import router as csan_router
 from verify import get_current_user
 from models import User
 from fastapi.middleware.cors import CORSMiddleware

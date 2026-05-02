@@ -9,13 +9,14 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name =Column(String, index=True, nullable=False)    
     email = Column(String, unique=True, index=True, nullable=False)
+
     password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     scans = relationship("Scan", back_populates="user", cascade="all, delete")
     otp_code = Column(String, nullable=True)
     otp_expiry = Column(DateTime, nullable=True)
     is_verified = Column(Boolean, default=False)
-    
+    new_email = Column(String, nullable=True) 
 class Scan(Base):
     __tablename__ = "scans"
     id = Column(Integer, primary_key=True, index=True)
@@ -45,3 +46,23 @@ class LoginRequest(BaseModel):
     password: str
 class VerifyOTP(BaseModel):
     otp: str
+
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+    confirm_new_password: str
+
+class ChangeEmailRequest(BaseModel):
+    new_email: str
+
+class change_email_otp(BaseModel):
+    otp: str
+
+class Cropmodel(BaseModel):
+    N: float
+    P: float
+    K: float
+    temperature: float
+    humidity: float
+    ph: float
+    rainfall: float
