@@ -111,7 +111,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            detail="wrong email or password "
         )
     if not user.is_verified:
         raise HTTPException(status_code=400, detail="Verify your account first")

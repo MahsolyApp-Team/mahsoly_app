@@ -66,3 +66,13 @@ class Cropmodel(BaseModel):
     humidity: float
     ph: float
     rainfall: float
+
+class fertilizer(BaseModel):
+    Temparature: float
+    Humidity: float
+    Moisture: float
+    Soil_Type: str
+    Crop_Type:str 
+    Nitrogen: float
+    Potassium: float 
+    Phosphorous:float

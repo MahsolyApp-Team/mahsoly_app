@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import httpx,cloudinary_config
 from datetime import datetime
 from database import get_db
-from models import Scan, Scanimage,Cropmodel
+from models import Scan, Scanimage,Cropmodel,fertilizer
 from verify import get_current_user
 from upload import upload_image_to_cloudinary   
 import traceback
@@ -12,6 +12,7 @@ router = APIRouter()
 
 REC_API =  "https://mahmoudiraqi21-plant-disease-detection.hf.space/predict" 
 Crop_API = "https://mahmoudiraqi21-crop-recommendation.hf.space/predict"
+fertilizer_API = "https://mahmoudiraqi21-fertilizer-recommendation.hf.space/predict"
 
 @router.post("/scan")
 async def scan_plant(
@@ -102,8 +103,47 @@ async def predict_crop(
                 "tips": result.get("tips", [])
             }
         crop = result.get("recommended_crop")
+        explanation = result.get("explanation")
         return {
-            "recommended_crop": crop
+            "recommended_crop": crop,
+            "explanation ": explanation
+        }
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal error")
+
+@router.post("/fertilizer-recommendation")
+async def fertilizer_recommendation(
+    data: fertilizer,
+    db: Session = Depends(get_db),
+    user = Depends(get_current_user)
+):
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                fertilizer_API,
+                json=data.model_dump(),
+                timeout=100.0
+            )
+        if response.status_code != 200:
+            print("STATUS:", response.status_code)
+            print("BODY:", response.text)
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "error": "API Model failed",
+                    "status_code": response.status_code,
+                    "response": response.text
+                }
+            )
+        result = response.json()
+        predicted_fertilizer = result.get("predicted_fertilizer")
+        confidence = result.get("confidence")
+        explanation = result.get("explanation")
+        return {
+            "predicted_fertilizer": predicted_fertilizer,
+            "confidence ": confidence,
+            "explanation": explanation
         }
     except Exception as e:
         traceback.print_exc()
