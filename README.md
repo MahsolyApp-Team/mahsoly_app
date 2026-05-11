@@ -20,6 +20,29 @@
 
 ---
 
+## 📁 Project Structure
+
+```text
+mahsoly_app/
+├── alembic/                # Database migrations directory
+├── .env                    # Environment variables file (create from template)
+├── .gitignore              # Specifies untracked files to ignore
+├── AI_models.py            # AI models integration logic (Hugging Face)
+├── alembic.ini             # Alembic database migration configuration
+├── Authentication.py       # Authentication routes and logic
+├── cloudinary_config.py    # Cloudinary storage configuration
+├── database.py             # Database connection setup (SQLAlchemy)
+├── email_utils.py          # Email sending utilities (OTP)
+├── main.py                 # FastAPI application entry point
+├── models.py               # Database models definition
+├── requirements.txt        # Project python dependencies
+├── security.py             # Security utilities (password hashing, JWT)
+├── upload.py               # File upload logic
+└── verify.py               # Verification logic
+```
+
+---
+
 ## 📋 Prerequisites and Dependencies
 
 Before you begin, ensure you have the following installed on your system:
