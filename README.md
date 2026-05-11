@@ -3,8 +3,11 @@ Smart Agriculture Backend System powered by AI.
 Built with FastAPI to provide crop recommendation, plant disease detection, authentication, image handling, and intelligent agricultural services.
 
 Overview
+
 Mahsoly Backend acts as the core server for the Mahsoly platform.
+
 It handles:
+
 User authentication
 
 AI model communication
@@ -24,6 +27,7 @@ Scan history storage
 The backend communicates asynchronously with deployed AI models hosted on external servers such as Hugging Face Spaces.
 
 Features:
+
 JWT Authentication
 
 Plant Disease Detection
@@ -43,7 +47,8 @@ Swagger API Documentation
 Scan History Management
 
 
-Tech Stack
+Tech Stack:
+
 Python --> Main Programming Language
 
 FastAPI --> Backend Framework
@@ -64,6 +69,7 @@ Uvicorn -->	ASGI Server
 
 
 Before running this project, make sure you have the following installed.
+
 1-Programming Languages: Python3.10+
 
 2-Frameworks & Libraries:
@@ -190,28 +196,26 @@ Database Storage
       
 Return Final Result
 
+_____________________________________________________________________________
 
 Main API Endpoints:   
 
-Method	                    Endpoint	                  Description
+POST	                      /register                  	
 
-POST	                      /register                  	Register new user
+POST                        /verify_otp                 
 
-POST                        /verify_otp                 verifying otp 
+POST                        /change_email               
 
-POST                        /change_email               Update user's email
+POST                        /confirm_email              
 
-POST                        /confirm_email              verifying otp for new email
+PUT                         /change_password            
+POST	                      /login	                    
 
-PUT                         /change_password            Update user's Password 
+POST	                      /predict-crop	              
 
-POST	                      /login	                    Login user
+POST	                      /scan           	          
 
-POST	                      /predict-crop	              Crop recommendation
-
-POST	                      /scan           	          Disease detection
-
-POST                        /fertilizer_recommendation  fertilizer recommendation
+POST                        /fertilizer_recommendation  
 
 Authentication:
 
@@ -243,6 +247,7 @@ Store Result in Database
         
 Return Prediction Response
 
+ _____________________________________________________________________________
 
 Author:
 Ismail Abdalaziz Ibrahim
