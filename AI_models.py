@@ -7,12 +7,16 @@ from models import Scan, Scanimage,Cropmodel,fertilizer
 from verify import get_current_user
 from upload import upload_image_to_cloudinary   
 import traceback
+from dotenv import load_dotenv
+import os
+
+load_dotenv(dotenv_path=".env")
 
 router = APIRouter()
 
-REC_API =  "https://mahmoudiraqi21-plant-disease-detection.hf.space/predict" 
-Crop_API = "https://mahmoudiraqi21-crop-recommendation.hf.space/predict"
-fertilizer_API = "https://mahmoudiraqi21-fertilizer-recommendation.hf.space/predict"
+REC_API = os.getenv("recommendation_model")
+Crop_API = os.getenv("crop_model")
+fertilizer_API = ("fertilizer_model")
 
 @router.post("/scan")
 async def scan_plant(

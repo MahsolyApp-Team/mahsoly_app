@@ -4,9 +4,9 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=".env")
+load_dotenv(override=True)
 
-SECRET_KEY = os.getenv("supersecret123", "dev-secret-key")
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE = int(os.getenv("60", 60))
 
