@@ -12,7 +12,7 @@ API_KEY = os.getenv("API_KEY")
 
 router = APIRouter()
 @router.get("/Dashboard")
-def get_report(
+def get_dashboard(
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
     ):
