@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends
 from database import Base, engine
 from Authentication import router as auth_router
+from dashboard import router as dash_router
 from AI_models import router as AI_router
 from chatbot import router as chat_router
 from verify import get_current_user
@@ -16,10 +17,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(auth_router)
 app.include_router(AI_router)
 app.include_router(chat_router)
+app.include_router(dash_router)
+
 
 
 @app.get("/home")
