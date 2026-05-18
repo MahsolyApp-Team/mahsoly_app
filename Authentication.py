@@ -2,11 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status,Header
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User,CreateUser,LoginRequest,VerifyOTP,ChangePassword,ChangeEmailRequest,change_email_otp,ForgotPassword,VerifyResetOtp,ResetPassword
-from security import hash_password, verify_password, create_access_token
+from security import hash_password, verify_password, create_access_token,create_refresh_token
 from datetime import datetime, timedelta
 import random
 from email_utils import send_otp_email
 from verify import get_current_user
+from jose import jwt,JWTError
+from dotenv import load_dotenv
+import os
 
 
 
@@ -174,8 +177,24 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Verify your account first")
     
     access_token = create_access_token({"sub": user.email,"name":user.name})
+    REFRESH_TOKEN = create_refresh_token({"sub": user.email,"name":user.name})
     
     return {
         "access_token": access_token,
+        "REFRESH_TOKEN": REFRESH_TOKEN,
         "token_type": "bearer"
     }
+
+ALGORITHM = "HS256"
+@router.post("/refresh")
+def refresh_token(refresh_token: str):
+    try:
+        payload = jwt.decode(refresh_token, os.getenv("SECRET_KEY"), algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        email = payload.get("sub")
+        name=payload.get("name")
+        new_access_token = create_access_token({"sub": email,"name":name})
+        return {"access_token": new_access_token}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
