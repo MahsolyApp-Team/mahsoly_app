@@ -173,7 +173,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     if not user.is_verified:
         raise HTTPException(status_code=400, detail="Verify your account first")
     
-    access_token = create_access_token({"sub": user.email})
+    access_token = create_access_token({"sub": user.email,"name":user.name})
     
     return {
         "access_token": access_token,
